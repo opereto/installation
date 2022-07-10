@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: opereto-es
+spec:
+  clusterIP: None
+  ports:
+  - port: 9300
+    name: internal
+  selector:
+    app: opereto-es-cluster

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-storage-config
+type: Opaque
+data:
+  OPERETO_CLUSTER_STORAGE_TYPE: "{{ .Values.serviceSettings.OPERETO_CLUSTER_STORAGE_TYPE | b64enc }}"
+  OPERETO_CLUSTER_STORAGE_NAME: "{{ .Values.serviceSettings.OPERETO_CLUSTER_STORAGE_NAME | b64enc }}"
+  OPERETO_CLUSTER_STORAGE_S3_AK: "{{ .Values.serviceSettings.OPERETO_CLUSTER_STORAGE_S3_AK | b64enc }}"
+  OPERETO_CLUSTER_STORAGE_S3_SK: "{{ .Values.serviceSettings.OPERETO_CLUSTER_STORAGE_S3_SK | b64enc }}"
+  OPERETO_CLUSTER_SANDBOX_STORAGE_NAME: "{{ .Values.serviceSettings.OPERETO_CLUSTER_SANDBOX_STORAGE_NAME | b64enc }}"
+  OPERETO_CLUSTER_SANDBOX_STORAGE_S3_AK: "{{ .Values.serviceSettings.OPERETO_CLUSTER_SANDBOX_STORAGE_S3_AK | b64enc }}"
+  OPERETO_CLUSTER_SANDBOX_STORAGE_S3_SK: "{{ .Values.serviceSettings.OPERETO_CLUSTER_SANDBOX_STORAGE_S3_SK | b64enc }}"
+  OPERETO_CLUSTER_STORAGE_GS_CREDENTIALS: "{{ .Values.serviceSettings.OPERETO_CLUSTER_STORAGE_GS_CREDENTIALS | b64enc }}"

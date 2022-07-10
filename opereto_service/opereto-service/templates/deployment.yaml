@@ -1,0 +1,184 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opereto-service-node
+spec:
+  serviceName: opereto-service
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: opereto-srv-cluster
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: opereto-srv-cluster
+    spec:
+      terminationGracePeriodSeconds: 300
+      containers:
+        - image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
+          env:
+            - name: OPERETO_CLUSTER_DEBUG
+              value: "{{ .Values.serviceSettings.OPERETO_CLUSTER_DEBUG }}"
+            - name: OPERETO_CYCLE_DEBUG
+              value: "{{ .Values.serviceSettings.OPERETO_CYCLE_DEBUG }}"
+            - name: OPERETO_TESTPLAN_DEBUG
+              value: "{{ .Values.serviceSettings.OPERETO_TESTPLAN_DEBUG }}"
+            - name: OPERETO_REST_DEBUG
+              value: "{{ .Values.serviceSettings.OPERETO_REST_DEBUG }}"
+            - name: OPERETO_ES_DEBUG
+              value: "{{ .Values.serviceSettings.OPERETO_ES_DEBUG }}"
+            - name: OPERETO_SECURITY_DEBUG
+              value: "{{ .Values.serviceSettings.OPERETO_SECURITY_DEBUG }}"
+            - name: OPERETO_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OPERETO_DB_SHARDS
+              value: "{{ .Values.serviceSettings.OPERETO_DB_SHARDS }}"
+            - name: OPERETO_DB_REPLICA
+              value: "{{ .Values.serviceSettings.OPERETO_DB_REPLICA }}"
+            - name: OPERETO_SYSTEM_DEFAULT_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_SYSTEM_DEFAULT_ADMIN_USER
+                  name: cluster-auth-config
+            - name: OPERETO_SYSTEM_DEFAULT_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_SYSTEM_DEFAULT_ADMIN_EMAIL
+                  name: cluster-auth-config
+            - name: OPERETO_REST_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_REST_COOKIE_SECRET
+                  name: cluster-auth-config
+            - name: OPERETO_TOKEN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_TOKEN_SECRET
+                  name: cluster-auth-config
+            - name: OPERETO_EXPORT_KEY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_EXPORT_KEY_SECRET
+                  name: cluster-auth-config
+            - name: OPERETO_COOKIE_EXPIRES_DAYS
+              value: "{{ .Values.serviceSettings.OPERETO_COOKIE_EXPIRES_DAYS }}"
+            - name: OPERETO_ASYNC_PROCESS_WORKERS
+              value: "{{ .Values.serviceSettings.OPERETO_ASYNC_PROCESS_WORKERS }}"
+            - name: OPERETO_ACTIVATE_API_DIAGNOSTICS
+              value: "{{ .Values.serviceSettings.OPERETO_ACTIVATE_API_DIAGNOSTICS }}"
+            - name: OPERETO_REGISTERED_EVENT_TIMEOUT
+              value: "{{ .Values.serviceSettings.OPERETO_REGISTERED_EVENT_TIMEOUT }}"
+            - name: OPERETO_TERMINATE_PENDING_EVENT_TIMEOUT
+              value: "{{ .Values.serviceSettings.OPERETO_TERMINATE_PENDING_EVENT_TIMEOUT }}"
+            - name: OPERETO_KEEP_UNUSED_AGENTS_TIMEOUT
+              value: "{{ .Values.serviceSettings.OPERETO_KEEP_UNUSED_AGENTS_TIMEOUT }}"
+            - name: OPERETO_KEEP_UNUSED_ENVIRONMENTS_TIMEOUT
+              value: "{{ .Values.serviceSettings.OPERETO_KEEP_UNUSED_ENVIRONMENTS_TIMEOUT }}"
+            - name: OPERETO_AGENTS_ONLINE_TIMEOUT
+              value: "{{ .Values.serviceSettings.OPERETO_AGENTS_ONLINE_TIMEOUT }}"
+          ## Oauth2.0 credentials
+            - name: OPERETO_AUTH_PROVIDER
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_AUTH_PROVIDER
+                  name: cluster-auth-config
+            - name: OPERETO_GOOGLE_AUTH_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_GOOGLE_AUTH_KEY
+                  name: cluster-auth-config
+            - name: OPERETO_GOOGLE_AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_GOOGLE_AUTH_SECRET
+                  name: cluster-auth-config
+            ## Cluster remote storage config
+            - name: OPERETO_CLUSTER_STORAGE_TYPE
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_CLUSTER_STORAGE_TYPE
+                  name: cluster-storage-config
+            - name: OPERETO_CLUSTER_STORAGE_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_CLUSTER_STORAGE_NAME
+                  name: cluster-storage-config
+            - name: OPERETO_CLUSTER_SANDBOX_STORAGE_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_CLUSTER_SANDBOX_STORAGE_NAME
+                  name: cluster-storage-config
+            - name: OPERETO_CLUSTER_STORAGE_GS_CREDENTIALS
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_CLUSTER_STORAGE_GS_CREDENTIALS
+                  name: cluster-storage-config
+            - name: OPERETO_CLUSTER_STORAGE_S3_AK
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_CLUSTER_STORAGE_S3_AK
+                  name: cluster-storage-config
+            - name: OPERETO_CLUSTER_STORAGE_S3_SK
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_CLUSTER_STORAGE_S3_SK
+                  name: cluster-storage-config
+            - name: OPERETO_CLUSTER_SANDBOX_STORAGE_S3_AK
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_CLUSTER_SANDBOX_STORAGE_S3_AK
+                  name: cluster-storage-config
+            - name: OPERETO_CLUSTER_SANDBOX_STORAGE_S3_SK
+              valueFrom:
+                secretKeyRef:
+                  key: OPERETO_CLUSTER_SANDBOX_STORAGE_S3_SK
+                  name: cluster-storage-config
+          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+          name: opereto-server
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/data
+              name: data
+          terminationMessagePolicy: File
+          terminationMessagePath: /dev/termination-log
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}
+
+        - image: redis:alpine
+          name: opereto-cache
+          volumeMounts:
+            - mountPath: /data
+              name: data
+          ports:
+            - containerPort: 6379
+              name: redis
+              protocol: TCP
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          resources:
+            {{- toYaml .Values.cache.resources | nindent 12 }}
+          args:
+            - --appendonly
+            - "no"
+            - --save
+            - ""
+          imagePullPolicy: {{ .Values.cache.image.pullPolicy }}
+
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: node-ssd
+        resources:
+          requests:
+            storage: {{ .Values.volumeSize }}

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-auth-config
+type: Opaque
+data:
+  OPERETO_AUTH_PROVIDER: "{{ .Values.serviceSettings.OPERETO_AUTH_PROVIDER | b64enc }}"
+  OPERETO_GOOGLE_AUTH_KEY: "{{ .Values.serviceSettings.OPERETO_GOOGLE_AUTH_KEY | b64enc }}"
+  OPERETO_GOOGLE_AUTH_SECRET: "{{ .Values.serviceSettings.OPERETO_GOOGLE_AUTH_SECRET | b64enc }}"
+  OPERETO_REST_COOKIE_SECRET: "{{ .Values.serviceSettings.OPERETO_REST_COOKIE_SECRET | b64enc }}"
+  OPERETO_TOKEN_SECRET: "{{ .Values.serviceSettings.OPERETO_TOKEN_SECRET | b64enc }}"
+  OPERETO_EXPORT_KEY_SECRET: "{{ .Values.serviceSettings.OPERETO_EXPORT_KEY_SECRET | b64enc }}"
+  OPERETO_SYSTEM_DEFAULT_ADMIN_USER: "{{ .Values.serviceSettings.OPERETO_SYSTEM_DEFAULT_ADMIN_USER | b64enc }}"
+  OPERETO_SYSTEM_DEFAULT_ADMIN_EMAIL: "{{ .Values.serviceSettings.OPERETO_SYSTEM_DEFAULT_ADMIN_EMAIL | b64enc }}"

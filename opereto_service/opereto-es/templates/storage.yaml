@@ -1,0 +1,9 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: es-node-ssd
+provisioner: {{ .Values.dbStorage.provisioner }}
+{{- with .Values.dbStorage.parameters }}
+parameters:
+  {{- toYaml . | nindent 8 }}
+{{- end }}

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opereto-worker-node
+spec:
+  serviceName: opereto-worker
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: opereto-worker-cluster
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: opereto-worker-cluster
+    spec:
+      terminationGracePeriodSeconds: 300
+      containers:
+      - env:
+        - name: agent_name
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: opereto_host
+          valueFrom:
+            secretKeyRef:
+              key: OPERETO_HOST
+              name: worker-config
+        - name: opereto_token
+          valueFrom:
+            secretKeyRef:
+              key: OPERETO_TOKEN
+              name: worker-config
+        - name: javaParams
+          value: "{{ .Values.workerSettings.JAVA_PARAMS }}"
+        - name: log_level
+          value: "{{ .Values.workerSettings.LOG_LEVEL }}"
+        image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}"
+        imagePullPolicy: {{ .Values.worker.image.pullPolicy }}
+        name: opereto-worker
+        resources:
+          {{- toYaml .Values.worker.resources | nindent 12 }}

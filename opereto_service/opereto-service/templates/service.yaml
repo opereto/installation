@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: opereto-web
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    name: serving
+  selector:
+    app: opereto-srv-cluster
+  type: NodePort

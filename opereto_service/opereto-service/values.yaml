@@ -1,0 +1,124 @@
+# Default values for opereto-service.
+
+replicaCount: 3
+
+serviceSettings:
+  OPERETO_CLUSTER_BLOB_STORAGE: 0
+  OPERETO_CLUSTER_DEBUG: 0
+  OPERETO_CYCLE_DEBUG: 0
+  OPERETO_TESTPLAN_DEBUG: 0
+  OPERETO_REST_DEBUG: 0
+  OPERETO_ES_DEBUG: 0
+  OPERETO_SECURITY_DEBUG: 0
+  OPERETO_DB_SHARDS: 5
+  OPERETO_DB_REPLICA: 1
+
+  ## General
+  OPERETO_SYSTEM_DEFAULT_ADMIN_USER: ""
+  OPERETO_SYSTEM_DEFAULT_ADMIN_EMAIL: ""
+
+  OPERETO_REST_COOKIE_SECRET: ""
+  OPERETO_TOKEN_SECRET: ""
+  OPERETO_EXPORT_KEY_SECRET: ""
+
+  OPERETO_COOKIE_EXPIRES_DAYS: 5
+  OPERETO_ACTIVATE_API_DIAGNOSTICS: 1
+  OPERETO_ASYNC_PROCESS_WORKERS: 3
+
+  OPERETO_REGISTERED_EVENT_TIMEOUT: 600
+  OPERETO_TERMINATE_PENDING_EVENT_TIMEOUT: 300
+  OPERETO_KEEP_UNUSED_AGENTS_TIMEOUT: 1800
+  OPERETO_KEEP_UNUSED_ENVIRONMENTS_TIMEOUT: 1800
+  OPERETO_AGENTS_ONLINE_TIMEOUT: 30
+
+  OPERETO_AUTH_PROVIDER: "google"
+  OPERETO_GOOGLE_AUTH_KEY: ""
+  OPERETO_GOOGLE_AUTH_SECRET: ""
+
+  ## services storage
+  OPERETO_CLUSTER_STORAGE_TYPE: "s3"
+  OPERETO_CLUSTER_STORAGE_NAME: ""
+  OPERETO_CLUSTER_SANDBOX_STORAGE_NAME: ""
+
+  ## services storage - s3
+  OPERETO_CLUSTER_STORAGE_S3_AK: ""
+  OPERETO_CLUSTER_STORAGE_S3_SK: ""
+  OPERETO_CLUSTER_SANDBOX_STORAGE_S3_AK: ""
+  OPERETO_CLUSTER_SANDBOX_STORAGE_S3_SK: ""
+
+  ## services storage = gs
+  OPERETO_CLUSTER_STORAGE_GS_CREDENTIALS: ""
+
+
+server:
+  image:
+    repository: opereto/server
+    pullPolicy: IfNotPresent
+    tag: "v3.0.2.340"
+  resources:
+    limits:
+      memory: 12Gi
+    requests:
+      memory: 12Gi
+
+cache:
+  image:
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      memory: 500Mi
+    requests:
+      memory: 500Mi
+
+serviceStorage:
+  provisioner: kubernetes.io/gce-pd
+  parameters:
+    type: pd-ssd
+    zone: us-central1-c
+
+volumeSize: "10Gi"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  privileged: true
+
+securityContext:
+  privileged: true
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/enable-access-log: "false"
+    kubernetes.io/ingress.global-static-ip-name: "<GCP STATIC IP ADDRESS>"
+  host: "<OPERETO_URL>"
+  secretName: clustersecret
+
+
+autoscaling:
+  enabled: false
+
+nodeSelector:
+  pooltype: frontend
+
+tolerations: []
+
+affinity: {}

@@ -1,0 +1,19 @@
+# Default values for opereto-worker.
+replicaCount: 2
+
+workerSettings:
+  OPERETO_HOST: ""
+  OPERETO_TOKEN: ""
+  LOG_LEVEL: "info"
+  JAVA_PARAMS: "-Xms2000m -Xmx2000m"
+
+worker:
+  image:
+    repository: opereto/worker
+    pullPolicy: Always
+    tag: "v3.0.110"
+  resources:
+    limits:
+      memory: 4Gi
+    requests:
+      memory: 4Gi

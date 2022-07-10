@@ -1,0 +1,59 @@
+# Default values for opereto-es.
+
+replicaCount: 3
+
+image:
+  repository: docker.elastic.co/elasticsearch/elasticsearch-oss
+  pullPolicy: IfNotPresent
+  tag: 7.9.1
+  name: elasticsearch
+
+dbStorage:
+  provisioner: kubernetes.io/gce-pd
+  parameters:
+    type: pd-ssd
+    zone: us-central1-c
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  privileged: true
+
+securityContext:
+  privileged: true
+
+resources:
+  # If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    memory: 32Gi
+  requests:
+    memory: 32Gi
+
+volumeSize: "150Gi"
+javaOpts: "-Xms16000m -Xmx16000m"
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector:
+  pooltype: backend
+
+tolerations: []
+
+affinity: {}
